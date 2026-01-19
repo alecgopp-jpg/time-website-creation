@@ -4,6 +4,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import Icon from '@/components/ui/icon';
 import { Card } from '@/components/ui/card';
+import { documents } from '@/data/documents';
 
 type ThemeMode = 'light' | 'dark' | 'sepia';
 
@@ -68,40 +69,14 @@ const Index = () => {
 
   const t = texts[language];
 
-  const documents = [
-    { 
-      id: 1, 
-      title: 'G.O.B.', 
-      year: 2010, 
-      preview: 'Цель: создание на территории России или другой выбранной для проекта территории, свободных международных ЦОДов...',
-      views: 2847,
-      relevance: 94
-    },
-    { 
-      id: 2, 
-      title: 'Кто приватизирует Россию?', 
-      year: 2010, 
-      preview: 'Они считают себя самыми умными и хитрыми. Они уверены в том, что придуманная схема экономического геноцида...',
-      views: 3621,
-      relevance: 98
-    },
-    { 
-      id: 3, 
-      title: 'Структура банковских клубов', 
-      year: 2011, 
-      preview: 'Анализ механизмов глобального влияния и распределения ресурсов через систему международных финансовых институтов...',
-      views: 1893,
-      relevance: 89
-    },
-    { 
-      id: 4, 
-      title: 'Виртуальное пространство', 
-      year: 2011, 
-      preview: 'О создании международных цифровых консорциумов и будущем государственных границ в виртуальной среде...',
-      views: 1256,
-      relevance: 76
-    }
-  ];
+  const documentCards = documents.map(doc => ({
+    id: doc.id,
+    title: doc.title,
+    year: doc.year,
+    preview: doc.content[language][0].substring(0, 120) + '...',
+    views: doc.id === 1 ? 2847 : doc.id === 2 ? 3621 : doc.id === 3 ? 1893 : 1256,
+    relevance: doc.id === 1 ? 94 : doc.id === 2 ? 98 : doc.id === 3 ? 89 : 76
+  }));
 
   return (
     <div className={`min-h-screen paper-texture ${theme}`}>
@@ -157,7 +132,7 @@ const Index = () => {
                 <h3 className="text-xs font-mono uppercase text-muted-foreground tracking-wide">
                   {language === 'ru' ? 'Документы' : 'Documents'}
                 </h3>
-                {documents.map((doc) => (
+                {documentCards.map((doc) => (
                   <button
                     key={doc.id}
                     onClick={() => window.location.href = `/document/${doc.id}`}
@@ -267,7 +242,7 @@ const Index = () => {
                   {language === 'ru' ? 'Тепловая карта популярности' : 'Popularity Heatmap'}
                 </h2>
                 <div className="grid gap-4">
-                  {documents.map((doc, idx) => (
+                  {documentCards.map((doc, idx) => (
                     <Card key={doc.id} className="p-4 hover:shadow-md transition-shadow" style={{animationDelay: `${0.8 + idx * 0.1}s`}}>
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
