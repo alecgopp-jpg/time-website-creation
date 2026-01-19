@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Test get all messages",
+      "method": "GET",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "messages": "array",
+        "total": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test OPTIONS method",
+      "method": "OPTIONS",
+      "expectedStatus": 200
+    }
+  ]
+}

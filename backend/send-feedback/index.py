@@ -3,9 +3,10 @@ import os
 import urllib.request
 import urllib.parse
 from datetime import datetime
+import psycopg2
 
 def handler(event: dict, context) -> dict:
-    """Отправка сообщений обратной связи в Telegram бот"""
+    """Отправка сообщений обратной связи в Telegram бот и сохранение в БД"""
     
     method = event.get('httpMethod', 'POST')
     
@@ -47,6 +48,27 @@ def handler(event: dict, context) -> dict:
                 },
                 'body': json.dumps({'error': 'Message is required'})
             }
+        
+        database_url = os.environ.get('DATABASE_URL')
+        conn = None
+        telegram_sent = False
+        feedback_id = None
+        
+        try:
+            conn = psycopg2.connect(database_url)
+            cur = conn.cursor()
+            
+            cur.execute(
+                "INSERT INTO feedback_messages (name, email, category, message, telegram_sent) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+                (name, email, category, message, False)
+            )
+            feedback_id = cur.fetchone()[0]
+            conn.commit()
+            cur.close()
+        except Exception as db_error:
+            if conn:
+                conn.rollback()
+            pass
         
         category_labels = {
             'feedback': '💬 Отзыв / Комментарий',
@@ -90,25 +112,41 @@ def handler(event: dict, context) -> dict:
         req = urllib.request.Request(url, data=data, method='POST')
         with urllib.request.urlopen(req, timeout=10) as response:
             result = json.loads(response.read().decode('utf-8'))
-            
-            if result.get('ok'):
-                return {
-                    'statusCode': 200,
-                    'headers': {
-                        'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
-                    },
-                    'body': json.dumps({'success': True, 'message': 'Message sent successfully'})
-                }
-            else:
-                return {
-                    'statusCode': 500,
-                    'headers': {
-                        'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
-                    },
-                    'body': json.dumps({'error': 'Failed to send message to Telegram'})
-                }
+            telegram_sent = result.get('ok', False)
+        
+        if conn and feedback_id:
+            try:
+                cur = conn.cursor()
+                cur.execute(
+                    "UPDATE feedback_messages SET telegram_sent = %s WHERE id = %s",
+                    (telegram_sent, feedback_id)
+                )
+                conn.commit()
+                cur.close()
+            except Exception:
+                pass
+        
+        if conn:
+            conn.close()
+        
+        if telegram_sent:
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'success': True, 'message': 'Message sent successfully', 'id': feedback_id})
+            }
+        else:
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'success': True, 'message': 'Message saved but Telegram sending failed', 'id': feedback_id, 'telegram_sent': False})
+            }
     
     except json.JSONDecodeError:
         return {
