@@ -5,6 +5,9 @@ import { Separator } from '@/components/ui/separator';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 
 type ThemeMode = 'light' | 'dark' | 'sepia';
 
@@ -12,6 +15,31 @@ const Contact = () => {
   const [theme, setTheme] = useState<ThemeMode>('light');
   const [language, setLanguage] = useState<'ru' | 'en'>('ru');
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    category: 'feedback',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    setTimeout(() => {
+      toast({
+        title: language === 'ru' ? 'Сообщение отправлено' : 'Message sent',
+        description: language === 'ru' 
+          ? 'Спасибо за обратную связь. Мы свяжемся с вами в ближайшее время.'
+          : 'Thank you for your feedback. We will contact you soon.',
+      });
+      setFormData({ name: '', email: '', category: 'feedback', message: '' });
+      setIsSubmitting(false);
+    }, 1000);
+  };
 
   const toggleTheme = () => {
     const themes: ThemeMode[] = ['light', 'dark', 'sepia'];
@@ -74,7 +102,22 @@ const Contact = () => {
           'Сомнение — путь к истине, а не препятствие'
         ]
       },
-      note: 'Все сообщения рассматриваются. Ответы публикуются выборочно, если они представляют интерес для широкой аудитории. Время — лучший фильтр для истины.'
+      note: 'Все сообщения рассматриваются. Ответы публикуются выборочно, если они представляют интерес для широкой аудитории. Время — лучший фильтр для истины.',
+      form: {
+        title: 'Форма обратной связи',
+        name: 'Ваше имя',
+        email: 'Email',
+        category: 'Категория обращения',
+        categories: {
+          feedback: 'Отзыв / Комментарий',
+          research: 'Исследование',
+          media: 'СМИ',
+          other: 'Другое'
+        },
+        message: 'Сообщение',
+        submit: 'Отправить',
+        sending: 'Отправка...'
+      }
     },
     en: {
       title: 'CONTACTS AND FEEDBACK',
@@ -127,7 +170,22 @@ const Contact = () => {
           'Doubt is the path to truth, not an obstacle'
         ]
       },
-      note: 'All messages are reviewed. Responses are published selectively if they are of interest to a wide audience. Time is the best filter for truth.'
+      note: 'All messages are reviewed. Responses are published selectively if they are of interest to a wide audience. Time is the best filter for truth.',
+      form: {
+        title: 'Feedback Form',
+        name: 'Your name',
+        email: 'Email',
+        category: 'Category',
+        categories: {
+          feedback: 'Feedback / Comment',
+          research: 'Research',
+          media: 'Media',
+          other: 'Other'
+        },
+        message: 'Message',
+        submit: 'Send',
+        sending: 'Sending...'
+      }
     }
   };
 
@@ -184,6 +242,12 @@ const Contact = () => {
                   className="block px-3 py-1.5 text-xs font-serif text-sidebar-foreground hover:text-accent hover:bg-sidebar-accent/50 rounded-sm transition-colors"
                 >
                   {t.guidelines.title}
+                </a>
+                <a
+                  href="#contact-form"
+                  className="block px-3 py-1.5 text-xs font-serif text-sidebar-foreground hover:text-accent hover:bg-sidebar-accent/50 rounded-sm transition-colors"
+                >
+                  {t.form.title}
                 </a>
               </div>
             </div>
@@ -327,6 +391,89 @@ const Contact = () => {
                   {t.note}
                 </p>
               </div>
+
+              <section id="contact-form" className="fade-in-up scroll-mt-20" style={{ animationDelay: '0.5s' }}>
+                <h2 className="font-serif text-3xl font-bold text-foreground document-line pb-4 mb-6">
+                  {t.form.title}
+                </h2>
+                <Card className="p-6">
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label htmlFor="name" className="font-mono text-xs text-muted-foreground uppercase tracking-wide">
+                          {t.form.name}
+                        </label>
+                        <Input
+                          id="name"
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          required
+                          className="font-serif"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="email" className="font-mono text-xs text-muted-foreground uppercase tracking-wide">
+                          {t.form.email}
+                        </label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          required
+                          className="font-serif"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="category" className="font-mono text-xs text-muted-foreground uppercase tracking-wide">
+                        {t.form.category}
+                      </label>
+                      <select
+                        id="category"
+                        value={formData.category}
+                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                        className="w-full px-3 py-2 font-serif text-sm border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                      >
+                        <option value="feedback">{t.form.categories.feedback}</option>
+                        <option value="research">{t.form.categories.research}</option>
+                        <option value="media">{t.form.categories.media}</option>
+                        <option value="other">{t.form.categories.other}</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="message" className="font-mono text-xs text-muted-foreground uppercase tracking-wide">
+                        {t.form.message}
+                      </label>
+                      <Textarea
+                        id="message"
+                        value={formData.message}
+                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                        required
+                        rows={6}
+                        className="font-serif resize-none"
+                      />
+                    </div>
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full md:w-auto font-mono"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+                          {t.form.sending}
+                        </>
+                      ) : (
+                        <>
+                          <Icon name="Send" size={16} className="mr-2" />
+                          {t.form.submit}
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </Card>
+              </section>
 
               <div className="pt-12 pb-8">
                 <Separator className="mb-6" />
