@@ -1,0 +1,38 @@
+{
+  "tests": [
+    {
+      "name": "Test feedback submission",
+      "method": "POST",
+      "body": {
+        "name": "Иван Иванов",
+        "email": "test@example.com",
+        "category": "feedback",
+        "message": "Отличный архив! Очень интересные материалы."
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test missing message",
+      "method": "POST",
+      "body": {
+        "name": "Test User",
+        "email": "test@example.com",
+        "category": "other"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test OPTIONS method",
+      "method": "OPTIONS",
+      "expectedStatus": 200
+    }
+  ]
+}

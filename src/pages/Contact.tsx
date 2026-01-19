@@ -29,16 +29,45 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      toast({
-        title: language === 'ru' ? 'Сообщение отправлено' : 'Message sent',
-        description: language === 'ru' 
-          ? 'Спасибо за обратную связь. Мы свяжемся с вами в ближайшее время.'
-          : 'Thank you for your feedback. We will contact you soon.',
+    try {
+      const response = await fetch('https://functions.poehali.dev/1fb58332-456a-4830-959c-06dc2cca6153', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
       });
-      setFormData({ name: '', email: '', category: 'feedback', message: '' });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast({
+          title: language === 'ru' ? 'Сообщение отправлено' : 'Message sent',
+          description: language === 'ru' 
+            ? 'Спасибо за обратную связь. Мы свяжемся с вами в ближайшее время.'
+            : 'Thank you for your feedback. We will contact you soon.',
+        });
+        setFormData({ name: '', email: '', category: 'feedback', message: '' });
+      } else {
+        toast({
+          title: language === 'ru' ? 'Ошибка отправки' : 'Sending error',
+          description: language === 'ru'
+            ? 'Не удалось отправить сообщение. Попробуйте позже.'
+            : 'Failed to send message. Please try again later.',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: language === 'ru' ? 'Ошибка' : 'Error',
+        description: language === 'ru'
+          ? 'Произошла ошибка. Проверьте соединение и попробуйте снова.'
+          : 'An error occurred. Check your connection and try again.',
+        variant: 'destructive'
+      });
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   const toggleTheme = () => {
