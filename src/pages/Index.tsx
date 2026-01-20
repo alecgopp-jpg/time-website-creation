@@ -5,6 +5,7 @@ import { Separator } from '@/components/ui/separator';
 import Icon from '@/components/ui/icon';
 import { Card } from '@/components/ui/card';
 import { documents } from '@/data/documents';
+import { SEO } from '@/components/SEO';
 
 type ThemeMode = 'light' | 'dark' | 'sepia';
 
@@ -85,8 +86,14 @@ const Index = () => {
   }));
 
   return (
-    <div className={`min-h-screen paper-texture ${theme}`}>
-      <div className="flex h-screen">
+    <>
+      <SEO 
+        title="Архив документов 2010-2011"
+        description="Цифровой архив документов 2010-2011 годов. Исследуйте свидетельства эпохи через призму времени."
+        keywords="архив 2010-2011, исторические документы, цифровой архив, свидетельства эпохи, социальная история"
+      />
+      <div className={`min-h-screen paper-texture ${theme}`}>
+        <div className="flex h-screen">
         <aside className="w-80 border-r border-border bg-sidebar">
           <ScrollArea className="h-full">
             <div className="p-6">
@@ -363,6 +370,7 @@ const Index = () => {
         </main>
       </div>
     </div>
+    </>
   );
 };
 

@@ -4,6 +4,7 @@ import { ContactHeader } from '@/components/contact/ContactHeader';
 import { ContactSidebar } from '@/components/contact/ContactSidebar';
 import { ContactContent } from '@/components/contact/ContactContent';
 import { ContactForm } from '@/components/contact/ContactForm';
+import { SEO } from '@/components/SEO';
 
 type ThemeMode = 'light' | 'dark' | 'sepia';
 
@@ -162,7 +163,13 @@ const Contact = () => {
   const t = content[language];
 
   return (
-    <div className={`min-h-screen paper-texture ${theme}`}>
+    <>
+      <SEO 
+        title="Контакты и обратная связь"
+        description="Свяжитесь с нами для обсуждения документов архива 2010-2011. Приветствуем исследователей, журналистов и всех заинтересованных."
+        keywords="контакты архив, обратная связь, исследователи, сотрудничество"
+      />
+      <div className={`min-h-screen paper-texture ${theme}`}>
       <div className="flex h-screen">
         <aside className="w-80 border-r border-border bg-sidebar">
           <ScrollArea className="h-full">
@@ -196,6 +203,7 @@ const Contact = () => {
         </main>
       </div>
     </div>
+    </>
   );
 };
 
